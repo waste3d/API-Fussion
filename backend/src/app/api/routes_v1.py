@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Query
 from starlette.requests import Request
+from app.services.sources_status import get_sources_status
+
 
 
 from app.models.search import SearchResponse, SourceName
@@ -59,35 +61,5 @@ async def logs(limit: int = Query(default=50, ge=1, le=200)):
     ]
 
 @router.get("/sources")
-async def sources():
-    now = datetime.now(timezone.utc)
-
-    gh_task = probe_github()
-    hn_task = probe_hackernews()
-    rss_task = probe_rss()
-
-    gh, hn, rss = await asyncio.gather(gh_task, hn_task, rss_task)
-
-    return [
-        {
-            "source": "github",
-            "ok": gh.ok,
-            "last_checked_at": now.isoformat().replace("+00:00", "Z"),
-            "latency_ms": gh.latency_ms,
-            "error": gh.error,
-        },
-        {
-            "source": "hackernews",
-            "ok": hn.ok,
-            "last_checked_at": now.isoformat().replace("+00:00", "Z"),
-            "latency_ms": hn.latency_ms,
-            "error": hn.error,
-        },
-        {
-            "source": "rss",
-            "ok": rss.ok,
-            "last_checked_at": now.isoformat().replace("+00:00", "Z"),
-            "latency_ms": rss.latency_ms,
-            "error": rss.error,
-        },
-    ]
+async def sources(force: bool = False):
+    return await get_sources_status(force=force)
