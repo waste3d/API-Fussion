@@ -4,10 +4,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes_system import router as system_router
 from app.api.routes_v1 import router as v1_router
 from app.core.config import settings
+from app.core.middleware import RequestMetaMiddleware
 
 app = FastAPI(title=settings.app_name)
 
 
+app.add_middleware(RequestMetaMiddleware)
 # dev cors settings
 app.add_middleware(
     CORSMiddleware,
