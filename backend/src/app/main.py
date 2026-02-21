@@ -6,8 +6,17 @@ from app.api.routes_v1 import router as v1_router
 from app.core.config import settings
 from app.core.middleware import RequestMetaMiddleware
 
-app = FastAPI(title=settings.app_name)
+from contextlib import asynccontextmanager
 
+from app.db.init import init_db
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    yield
+
+
+app = FastAPI(title=settings.app_name, lifespan=lifespan)
 
 app.add_middleware(RequestMetaMiddleware)
 # dev cors settings
