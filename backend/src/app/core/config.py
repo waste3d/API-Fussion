@@ -1,5 +1,4 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
 
 
 class Settings(BaseSettings):
@@ -9,10 +8,14 @@ class Settings(BaseSettings):
     http_timeout_seconds: float = 3.0
     github_token: str | None = None
 
-    # CSV в .env: RSS_FEEDS="https://hnrss.org/newest,https://www.reddit.com/r/Python/.rss"
-    rss_feeds: list[str] = Field(default_factory=lambda: ["https://hnrss.org/newest"])
+    # CSV строка (простая и надёжная для env)
+    rss_feeds_csv: str = "https://hnrss.org/newest"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    @property
+    def rss_feeds(self) -> list[str]:
+        return [s.strip() for s in self.rss_feeds_csv.split(",") if s.strip()]
 
 
 settings = Settings()
