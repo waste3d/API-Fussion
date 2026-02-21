@@ -5,6 +5,11 @@ from starlette.requests import Request
 from app.models.search import SearchResponse, SourceName
 from app.services.aggregator import aggregate_search
 
+import asyncio
+from datetime import datetime, timezone
+
+from app.services.source_probe import probe_github, probe_hackernews, probe_rss
+
 from sqlalchemy import select, desc
 from app.db.models import RequestLog
 from app.db.session import get_sessionmaker
@@ -51,4 +56,38 @@ async def logs(limit: int = Query(default=50, ge=1, le=200)):
             errors_count=r.errors_count,
         )
         for r in rows
+    ]
+
+@router.get("/sources")
+async def sources():
+    now = datetime.now(timezone.utc)
+
+    gh_task = probe_github()
+    hn_task = probe_hackernews()
+    rss_task = probe_rss()
+
+    gh, hn, rss = await asyncio.gather(gh_task, hn_task, rss_task)
+
+    return [
+        {
+            "source": "github",
+            "ok": gh.ok,
+            "last_checked_at": now.isoformat().replace("+00:00", "Z"),
+            "latency_ms": gh.latency_ms,
+            "error": gh.error,
+        },
+        {
+            "source": "hackernews",
+            "ok": hn.ok,
+            "last_checked_at": now.isoformat().replace("+00:00", "Z"),
+            "latency_ms": hn.latency_ms,
+            "error": hn.error,
+        },
+        {
+            "source": "rss",
+            "ok": rss.ok,
+            "last_checked_at": now.isoformat().replace("+00:00", "Z"),
+            "latency_ms": rss.latency_ms,
+            "error": rss.error,
+        },
     ]
