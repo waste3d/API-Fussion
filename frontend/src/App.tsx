@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { mockSearch } from "./lib/mockApi";
+import { search } from "./lib/apiClient";
 import type { SearchResponse, SourceName } from "./lib/types";
 
 const SOURCES: { id: SourceName; label: string }[] = [
@@ -25,7 +25,7 @@ export default function App() {
     if (!canSearch) return;
     setLoading(true);
     try {
-      const res = await mockSearch(q.trim(), sources, 20);
+      const res = await search(q.trim(), sources, 20);
       setData(res);
     } finally {
       setLoading(false);
