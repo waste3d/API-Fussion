@@ -21,3 +21,21 @@ export type SearchResponse = {
   items: SearchItem[];
   errors: ErrorInfo[];
 };
+
+export type SourceStatus = {
+  source: SourceName;
+  ok: boolean;
+  latency_ms?: number | null;
+  last_checked_at: string;
+  error?: string | null;
+};
+
+export type LogRow = {
+  id: string;
+  ts: string;
+  q: string;
+  sources: SourceName[];
+  took_ms: number;
+  items: number;
+  errors: number;
+};
