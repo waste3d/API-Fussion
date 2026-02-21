@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     # CSV строка (простая и надёжная для env)
     rss_feeds_csv: str = "https://hnrss.org/newest"
 
+    database_url: str | None = None
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @property
