@@ -23,3 +23,4 @@ class SearchResponse(BaseModel):
     sources: list[SourceName]
     items: list[SearchItem]
     errors: list[ErrorInfo] = []
+    took_ms: int | None = None
